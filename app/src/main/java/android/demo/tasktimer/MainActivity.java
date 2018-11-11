@@ -1,7 +1,9 @@
 package android.demo.tasktimer;
 
 import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -29,15 +31,45 @@ public class MainActivity extends AppCompatActivity {
         // and then it passes the entire uri on to our provider to run the query
         // As long as the cursor returned by the query is not null, we will loop through all the rows
         // The code loops through all the columns in the cursor and logs the name and value of each one
-        String[] projections = {TasksContract.Columns.TASKS_NAME, TasksContract.Columns.TASKS_DESCRIPTION};
+        String[] projections = {TasksContract.Columns._ID,
+                                TasksContract.Columns.TASKS_NAME,
+                                TasksContract.Columns.TASKS_DESCRIPTION,
+                                TasksContract.Columns.TASKS_SORTORDER};
         ContentResolver contentResolver = getContentResolver();
+        ContentValues values = new ContentValues();
+//        values.put(TasksContract.Columns.TASKS_SORTORDER, "99");
+//        values.put(TasksContract.Columns.TASKS_DESCRIPTION, "Completed");
+//        String selection = TasksContract.Columns.TASKS_SORTORDER + " = " + 2;
+//        int count = contentResolver.update(TasksContract.CONTENT_URI, values, selection, null);
+//        Log.d(TAG, "onCreate: " + count + "record(s) updated");
+
+//        values.put(TasksContract.Columns.TASKS_DESCRIPTION, "For deletion");
+//        String selection = TasksContract.Columns.TASKS_SORTORDER + " =?";
+//        String[] args = { "99" };
+
+//        int count = contentResolver.delete(TasksContract.buildTaskUri(3), null, null);
+//        Log.d(TAG, "onCreate: " + count + "record(s) deleted");
+
+        String selection = TasksContract.Columns.TASKS_DESCRIPTION + " = ?";
+        String[] args = {"For deletion"};
+        int count = contentResolver.delete(TasksContract.CONTENT_URI, selection, args);
+        Log.d(TAG, "onCreate: " + count + " record(s) deleted");
+
+//        values.put(TasksContract.Columns.TASKS_NAME, "Content Provider");
+//        values.put(TasksContract.Columns.TASKS_DESCRIPTION, "Record content provider video");
+//        int count = contentResolver.update(TasksContract.buildTaskUri(4), values, null, null);
+//        Log.d(TAG, "onCreate: " + count + "record(s) updated");
+//        values.put(TasksContract.Columns.TASKS_NAME, "NEW TASK 1");
+//        values.put(TasksContract.Columns.TASKS_DESCRIPTION, "Description 1");
+//        values.put(TasksContract.Columns.TASKS_SORTORDER, 2);
+//        Uri uri = contentResolver.insert(TasksContract.CONTENT_URI, values);
         // sort by name alphabetically
         // Cursor cursor = contentResolver.query(TasksContract.CONTENT_URI, projections, null, null, TasksContract.Columns.TASKS_NAME);
         // sort by sortOrder column
-        // Cursor cursor = contentResolver.query(TasksContract.CONTENT_URI, projections, null, null, TasksContract.Columns.TASKS_SORTORDER);
+         Cursor cursor = contentResolver.query(TasksContract.CONTENT_URI, projections, null, null, TasksContract.Columns.TASKS_SORTORDER);
 
         // return the row with ID 1
-        Cursor cursor = contentResolver.query(TasksContract.buildTaskUri(1), projections, null, null, TasksContract.Columns.TASKS_NAME);
+//        Cursor cursor = contentResolver.query(TasksContract.buildTaskUri(1), projections, null, null, TasksContract.Columns.TASKS_NAME);
         if (cursor != null) {
             Log.d(TAG, "onCreate: number of rows: " + cursor.getCount());
             while (cursor.moveToNext()) {
