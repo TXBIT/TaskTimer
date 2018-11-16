@@ -51,7 +51,7 @@
             android:layout_marginTop="8dp"
             android:layout_weight="1"
             android:baselineAlignBottom="false"
-            android:contentDescription="Edit Button"
+            android:contentDescription="@string/edit_button_description"
             app:srcCompat="@android:drawable/ic_menu_edit" />
 
         <ImageButton
@@ -61,7 +61,7 @@
             android:layout_marginTop="8dp"
             android:layout_weight="1"
             android:baselineAlignBottom="false"
-            android:contentDescription="Delete Button"
+            android:contentDescription="@string/delete_button_description"
             app:srcCompat="@android:drawable/ic_menu_delete" />
 
     </LinearLayout>
