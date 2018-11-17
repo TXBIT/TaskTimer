@@ -49,13 +49,6 @@ public class MainActivity extends AppCompatActivity {
 
         /* 012 */
 //        // 1.insert
-//        // ContentValues is used to provide the new values
-//        // that we will insert into the database
-//        // a ContentValues object is similar to a bundle
-//        // we use its put method to store key-value pairs
-//        // the keys are the columns name of the table that we are inserting into
-//        // we specify values for the Name columns because it is set as NOT NULL
-//        // we can leave out the Description and SortOrder columns
 //        ContentValues values = new ContentValues();
 //        values.put(TasksContract.Columns.TASKS_NAME, "New Task 1");
 //        values.put(TasksContract.Columns.TASKS_DESCRIPTION, "Description 1");
@@ -64,15 +57,9 @@ public class MainActivity extends AppCompatActivity {
 
 //        // 2.update a row
 //        ContentValues values = new ContentValues();
-//        // we do not have to provide values for all columns
-//        // any columns that are not provided with values
 //        values.put(TasksContract.Columns.TASKS_NAME, "Content Provider");
 //        values.put(TasksContract.Columns.TASKS_DESCRIPTION, "Record Content Provider Video");
-//        // the update method needs a uri with a set of values
-//        // we pass the value and also include the uri containing the id
-//        // by calling the buildTaskUri method
 //        // passing the id of the record we want to update, 4 in this case
-//        // and null for the where clause and selectionArgs
 //        int count = contentResolver.update(TasksContract.buildTaskUri(4), values, null, null);
 //        Log.d(TAG, "onCreate: " + count + " record(s) updated");
 
@@ -80,10 +67,7 @@ public class MainActivity extends AppCompatActivity {
 //        ContentValues values = new ContentValues();
 //        values.put(TasksContract.Columns.TASKS_SORTORDER, "99");
 //        values.put(TasksContract.Columns.TASKS_DESCRIPTION, "Completed");
-//        // where clause: update all entries in the database
-//        // that have SortOrder with value of 2
-//        // these Tasks will have the new SortOrder of 2
-//        // and Descriptions set to "Completed"
+//        // where clause: update all entries in the database that have column tasks with value of 2
 //        String selection = TasksContract.Columns.TASKS_SORTORDER + " = " + 2;
 //        // selectionArgs is used in selection criteria to prevent SQL Injection attack
 //        int count = contentResolver.update(TasksContract.CONTENT_URI, values, selection, null);
@@ -92,8 +76,7 @@ public class MainActivity extends AppCompatActivity {
 //        // 4.SQL Injection prevention
 //        ContentValues values = new ContentValues();
 //        values.put(TasksContract.Columns.TASKS_DESCRIPTION, "For deletion");
-//        // where clause: update all rows whose sortOrder = 99
-//        // and set their description to "For deletion"
+//        // where clause:
 //        String selection = TasksContract.Columns.TASKS_SORTORDER + " = ?";
 //        // selectionArgs is used in selection criteria to prevent SQL Injection attack
 //        // each value in args is used to replaced the question mark in the selection
@@ -108,7 +91,6 @@ public class MainActivity extends AppCompatActivity {
 //        Log.d(TAG, "onCreate: " + count + " record(s) deleted");
 
 //        // 6.pass uri without ID and use selection to specify which row to delete
-//        // Delete all rows whose description are "For deletion"
 //        ContentValues values = new ContentValues();
 //        String selection = TasksContract.Columns.TASKS_DESCRIPTION + " = ?";
 //        String[] args = {"For deletion"};
