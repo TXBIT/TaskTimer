@@ -15,26 +15,20 @@ import android.util.Log;
  */
 
 public class AppProvider extends ContentProvider {
-    private static final String TAG = "AppProvider";
-
-    private AppDatabase mOpenHelper;
-
-    private static final UriMatcher sUriMatcher = buildUriMatcher();
-
     static final String CONTENT_AUTHORITY = "android.demo.tasktimer.provider";
     public static final Uri CONTENT_AUTHORITY_URI = Uri.parse("content://" + CONTENT_AUTHORITY);
-
+    private static final String TAG = "AppProvider";
     private static final int TASKS = 100;
     private static final int TASKS_ID = 101;
-
+    private static final UriMatcher sUriMatcher = buildUriMatcher();
     private static final int TIMINGS = 200;
     private static final int TIMINGS_ID = 201;
+    private static final int TASK_DURATIONS = 400;
 
 //    private static final int TASK_TIMINGS = 300;
 //    private static final int TASK_TIMINGS_ID = 301;
-
-    private static final int TASK_DURATIONS = 400;
     private static final int TASK_DURATIONS_ID = 401;
+    private AppDatabase mOpenHelper;
 
     private static UriMatcher buildUriMatcher() {
         // if there is no table name in the URI, the matcher will returns NO_MATCH

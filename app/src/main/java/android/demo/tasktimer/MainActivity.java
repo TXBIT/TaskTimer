@@ -1,26 +1,19 @@
 package android.demo.tasktimer;
 
-import android.content.ContentResolver;
-import android.content.ContentValues;
 import android.content.Intent;
-import android.database.Cursor;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
+    private static final String ADD_EDIT_FRAGMENT = "AddEditFragment";
     //whether or not this activity is in 2-pane mode
 //    i.e running in landscape in tablet
     private boolean mTwoPane = false;
-
-    private static final String ADD_EDIT_FRAGMENT = "AddEditFragment";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,8 +21,6 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
-
 
 
     }
@@ -49,7 +40,7 @@ public class MainActivity extends AppCompatActivity {
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        switch(id){
+        switch (id) {
             case R.id.menumain_addTask:
                 taskEditRequest(null);
                 break;
@@ -66,24 +57,24 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    private void taskEditRequest(Task task){
+    private void taskEditRequest(Task task) {
         Log.d(TAG, "taskEditRequest: starts");
-        if (mTwoPane){
+        if (mTwoPane) {
             Log.d(TAG, "taskEditRequest: in two-pane mode (tablet)");
 
-        } else{ // if the app is running in portrait mode, start the AddEditActivity using an Intent
+        } else { // if the app is running in portrait mode, start the AddEditActivity using an Intent
             Log.d(TAG, "taskEditRequest: in single-pane mode (phone)");
             //in single-pane mode, start the detail activity for the selected item Id.
 
             Intent detailIntent = new Intent(this, AddEditActivity.class);
             //If taskEditReqi=uest is called with a not null task argument, an existing task is to be edited
 //            if the task is null, add a new task
-            if(task != null){ //editing a task
+            if (task != null) { //editing a task
 //                adding the to be edited task to the intent by calling the putExtra method
 //                that's why we had to make the Task class serializable in order to pass it around in an intent
                 detailIntent.putExtra(Task.class.getSimpleName(), task);
                 startActivity(detailIntent);
-            }else { //adding a new task
+            } else { //adding a new task
                 startActivity(detailIntent);
             }
         }

@@ -1,17 +1,27 @@
 package android.demo.tasktimer;
 
-import android.support.v4.app.Fragment;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.EditText;
 
 /**
  * A placeholder fragment containing a simple view.
  */
 public class AddEditActivityFragment extends Fragment {
     private static final String TAG = "AddEditActivityFragment";
+    private FragmentEditMode mMode;
+
+    ;
+    // get references to all widgets to attach a listener to the button and get the text type into the edit texts
+    private EditText mNameTextView;
+    private EditText mDescriptionTextView;
+    private EditText mSortOrderTextView;
+    private Button mSaveButton;
 
     public AddEditActivityFragment() {
         Log.d(TAG, "AddEditActivityFragment: constructor called");
@@ -21,6 +31,61 @@ public class AddEditActivityFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         Log.d(TAG, "onCreateView: starts");
-        return inflater.inflate(R.layout.fragment_add_edit, container, false);
+        // variable to store the inflated view
+        View view = inflater.inflate(R.layout.fragment_add_edit, container, false);
+        // extract the references to the various widgets on the screen and save those in the fields
+        mNameTextView = (EditText) view.findViewById(R.id.addedit_name);
+        mDescriptionTextView = (EditText) view.findViewById(R.id.addedit_description);
+        mSortOrderTextView = (EditText) view.findViewById(R.id.addedit_sortorder);
+        mSaveButton = (Button) view.findViewById(R.id.addedit_save);
+// the line to be changed
+        // arguments bundle is returned by getExtras
+        // that is calling on the intent (getIntent)
+        // that started the activity (getActivity)
+        Bundle arguments = getActivity().getIntent().getExtras();
+        // the task to be retrieved
+        final Task task;
+        // check if the bundle is empty
+        // when MainActivity wants to add a new task, it doesn't provide any extras to the intent, in this case arguments will be null
+        // even if there are arguments, there's no guarantee that they contain a task so we used the getSerializable method and pass the Task.class.getSimpleName as the key (line 62)
+        // if that doesn't return null, we have a task to edit, we can then initialize the contents of the edit text widgets with that task details
+        // if the task was null, we didn't get a task to edit, we just set the mode to ADD
+        // the task is made final because we are referring to it in the button onClickListener and an inner class can only access final variables of its enclosing class
+        // we have to initialize it to null (line 80) otherwise there will be a path through the code that could result in it no been initialized and lead to error
+        if (arguments != null) {
+            Log.d(TAG, "onCreateView: retrieving task details.");
+
+            task = (Task) arguments.getSerializable(Task.class.getSimpleName());
+            // check ig the task is null
+            if (task != null) {
+                //retrieved a task
+                Log.d(TAG, "onCreateView: Task details found, editing...");
+                // get values out of the task object that came in by the bundle
+                // set the various text properties and set the mode
+                mNameTextView.setText(task.getName());
+                mDescriptionTextView.setText(task.getDescription());
+                mSortOrderTextView.setText(Integer.toString(task.getSortOrder()));
+                mMode = FragmentEditMode.EDIT;
+
+            } else {
+                //No task, so we must be adding a new task, and not editing an existing one
+                mMode = FragmentEditMode.ADD;
+
+            }
+        } else {
+            task = null;
+            Log.d(TAG, "onCreateView: No arguments, adding a new record");
+            mMode = FragmentEditMode.ADD;
+
+        }
+
+        return view;
+
+    }
+
+    // keeps track of whether the fragments being used to add or edit
+    public enum FragmentEditMode {
+        EDIT, ADD
     }
 }
+
