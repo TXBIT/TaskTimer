@@ -33,7 +33,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textColor="?android:attr/textColorSecondary"
-            tools:text="Write notes for the TaskTimer application" />
+            tools:text="Write course notes for the TaskTimer application" />
     </LinearLayout>
 
     <LinearLayout
@@ -51,7 +51,7 @@
             android:layout_marginTop="8dp"
             android:layout_weight="1"
             android:baselineAlignBottom="false"
-            android:contentDescription="@string/edit_button_description"
+            android:contentDescription="Edit Button"
             app:srcCompat="@android:drawable/ic_menu_edit" />
 
         <ImageButton
@@ -61,7 +61,7 @@
             android:layout_marginTop="8dp"
             android:layout_weight="1"
             android:baselineAlignBottom="false"
-            android:contentDescription="@string/delete_button_description"
+            android:contentDescription="Delete Button"
             app:srcCompat="@android:drawable/ic_menu_delete" />
 
     </LinearLayout>

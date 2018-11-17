@@ -9,34 +9,31 @@
         android:id="@+id/addedit_name"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:autofillHints=""
         android:ems="10"
         android:hint="@string/addedit_name_hint"
+        android:importantForAutofill="no"
         android:inputType="textNoSuggestions"
-        android:maxLength="64"
-        tools:ignore="UnusedAttribute" />
+        android:maxLength="64" />
 
     <EditText
         android:id="@+id/addedit_description"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:autofillHints=""
         android:ems="10"
         android:hint="@string/addedit_description_hint"
+        android:importantForAutofill="no"
         android:inputType="textMultiLine"
-        android:maxLength="256"
-        tools:ignore="UnusedAttribute" />
+        android:maxLength="256" />
 
     <EditText
         android:id="@+id/addedit_sortorder"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:autofillHints=""
         android:ems="10"
         android:hint="@string/addedit_sort_hint"
+        android:importantForAutofill="no"
         android:inputType="number"
-        android:maxLength="9"
-        tools:ignore="UnusedAttribute" />
+        android:maxLength="9" />
 
     <Button
         android:id="@+id/addedit_save"

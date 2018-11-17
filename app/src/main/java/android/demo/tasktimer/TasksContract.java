@@ -25,7 +25,7 @@ public class TasksContract {
 
     /**
      * The uri to access the Tasks table
-     *
+     * <p>
      * CONTENT_URI can be used by external classes
      * including different apps that use our content provider to refer to our Tasks table
      */

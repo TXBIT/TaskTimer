@@ -7,7 +7,7 @@ import android.util.Log;
 
 /**
  * Basic database class for the application
- *
+ * <p>
  * The only class that should use this is {@link AppProvider}
  */
 
@@ -46,7 +46,7 @@ class AppDatabase extends SQLiteOpenHelper {
         Log.d(TAG, "onCreate: starts");
         String sSQL; // Use a string variable to facilitate logging
         // sSQL = "CREATE TABLE Tasks (_id INTEGER PRIMARY KEY NOT NULL, Name TEXT NOT NULL, Description TEXT, SortOrder INTEGER, CategoryID INTEGER);";
-        sSQL =  "CREATE TABLE "
+        sSQL = "CREATE TABLE "
                 + TasksContract.TABLE_NAME + " ("
                 + TasksContract.Columns._ID + " INTEGER PRIMARY KEY NOT NULL, "
                 + TasksContract.Columns.TASKS_NAME + " TEXT NOT NULL, "
