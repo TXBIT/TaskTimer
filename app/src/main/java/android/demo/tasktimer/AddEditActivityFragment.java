@@ -24,7 +24,6 @@ public class AddEditActivityFragment extends Fragment {
 
     private FragmentEditMode mMode;
 
-    ;
     // get references to all widgets to attach a listener to the button and get the text type into the edit texts
     private EditText mNameTextView;
     private EditText mDescriptionTextView;
@@ -46,7 +45,7 @@ public class AddEditActivityFragment extends Fragment {
         mDescriptionTextView = (EditText) view.findViewById(R.id.addedit_description);
         mSortOrderTextView = (EditText) view.findViewById(R.id.addedit_sortorder);
         mSaveButton = (Button) view.findViewById(R.id.addedit_save);
-// the line to be changed
+        // the line to be changed
         // arguments bundle is returned by getExtras
         // that is calling on the intent (getIntent)
         // that started the activity (getActivity)
@@ -78,7 +77,6 @@ public class AddEditActivityFragment extends Fragment {
             } else {
                 //No task, so we must be adding a new task, and not editing an existing one
                 mMode = FragmentEditMode.ADD;
-
             }
         } else {
             task = null;
@@ -148,11 +146,7 @@ public class AddEditActivityFragment extends Fragment {
             }
         });
         Log.d(TAG, "onCreateView: Exiting...");
-
         return view;
-
     }
-
-
 }
 
