@@ -1,5 +1,7 @@
 package android.demo.tasktimer;
 
+import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -14,6 +16,12 @@ import android.widget.EditText;
  */
 public class AddEditActivityFragment extends Fragment {
     private static final String TAG = "AddEditActivityFragment";
+
+    // keeps track of whether the fragments being used to add or edit
+    public enum FragmentEditMode {
+        EDIT, ADD
+    }
+
     private FragmentEditMode mMode;
 
     ;
@@ -28,7 +36,7 @@ public class AddEditActivityFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(LayoutInflater inflater, final ViewGroup container,
                              Bundle savedInstanceState) {
         Log.d(TAG, "onCreateView: starts");
         // variable to store the inflated view
@@ -78,14 +86,73 @@ public class AddEditActivityFragment extends Fragment {
             mMode = FragmentEditMode.ADD;
 
         }
+        // the values in the EditTexts are checked to make sure they changed
+        // if the users click the save button without making any changes to the data
+        // then there's no point accessing the database to update a record with the same values
+        mSaveButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // update the database if at least one field has changed.
+                // - There's no need to hit the database unless this has happened.
+                int so; //to save repeated conversions to int.
+                if (mSortOrderTextView.length() > 0) {
+                    // since we use the numeric value of the sort order three times
+                    // it is converted to an int to avoid duplicating the conversion code
+                    so = Integer.parseInt(mSortOrderTextView.getText().toString());
+
+                } else {
+                    so = 0;
+                }
+                // reference to the content resolver
+                // in an activity, we just call the getContentResolver method
+                // but in a fragment, we have to get a reference to the activity that the fragments attached to first
+                // and then call getContentResolver on that activity reference
+                ContentResolver contentResolver = getActivity().getContentResolver();
+                ContentValues values = new ContentValues();
+
+                switch (mMode) {
+                    case EDIT:
+                        // check each edit text value against the original task object that was passed in the bundle
+                        // if the value has changed, the new value is added to the values ContentValues
+                        // once all the fields have been checked, if there is anything in value
+                        // then the data is saved by calling the update method of the contentResolver
+                        if (!mNameTextView.getText().toString().equals(task.getName())) {
+                            values.put(TasksContract.Columns.TASKS_NAME, mNameTextView.getText().toString());
+                        }
+                        if (!mDescriptionTextView.getText().toString().equals(task.getDescription())) {
+                            values.put(TasksContract.Columns.TASKS_DESCRIPTION, mDescriptionTextView.getText().toString());
+                        }
+                        if (so != task.getSortOrder()) {
+                            values.put(TasksContract.Columns.TASKS_SORTORDER, so);
+                        }
+                        // if one of the three fields has been changed
+                        if (values.size() != 0) {
+                            Log.d(TAG, "onClick: updating task");
+                            contentResolver.update(TasksContract.buildTaskUri(task.getid()), values, null, null);
+                        }
+                        break;
+                    case ADD:
+                        // in the case of adding a new record
+                        // we just make sure that the task field name is not blank
+                        // as this is the only column that requires a value on the table
+                        if (mNameTextView.length() > 0) {
+                            Log.d(TAG, "onClick: adding new task");
+                            values.put(TasksContract.Columns.TASKS_NAME, mNameTextView.getText().toString());
+                            values.put(TasksContract.Columns.TASKS_DESCRIPTION, mDescriptionTextView.getText().toString());
+                            values.put(TasksContract.Columns.TASKS_SORTORDER, so);
+                            contentResolver.insert(TasksContract.CONTENT_URI, values);
+                        }
+                        break;
+                }
+                Log.d(TAG, "onClick: Done editing");
+            }
+        });
+        Log.d(TAG, "onCreateView: Exiting...");
 
         return view;
 
     }
 
-    // keeps track of whether the fragments being used to add or edit
-    public enum FragmentEditMode {
-        EDIT, ADD
-    }
+
 }
 

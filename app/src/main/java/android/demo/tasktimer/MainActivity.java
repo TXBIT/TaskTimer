@@ -10,10 +10,12 @@ import android.view.MenuItem;
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
-    private static final String ADD_EDIT_FRAGMENT = "AddEditFragment";
+
     //whether or not this activity is in 2-pane mode
 //    i.e running in landscape in tablet
     private boolean mTwoPane = false;
+
+    private static final String ADD_EDIT_FRAGMENT = "AddEditFragment";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -21,7 +23,6 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
 
     }
 
