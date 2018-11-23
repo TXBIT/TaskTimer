@@ -17,10 +17,17 @@ class CursorRecylerViewAdapter extends RecyclerView.Adapter<CursorRecylerViewAda
     private static final String TAG = "CursorRecyclerViewAdapt";
     // the field that holds the cursor
     private Cursor mCursor;
+    private OnTaskClickListener mListener;
 
-    public CursorRecylerViewAdapter(Cursor cursor) {
+    interface OnTaskClickListener {
+        void onEditClick(Task task);
+        void onDeleteClick(Task task);
+    }
+
+    public CursorRecylerViewAdapter(Cursor cursor, OnTaskClickListener listener) {
         Log.d(TAG, "CursorRecylerViewAdapter: Constructor called");
-        this.mCursor = cursor;
+        mCursor = cursor;
+        mListener = listener;
     }
 
     // onCreateViewHolder is called when the RecyclerView needs a new View to display
@@ -61,23 +68,44 @@ class CursorRecylerViewAdapter extends RecyclerView.Adapter<CursorRecylerViewAda
             taskViewHolder.description.setText(task.getDescription());
             taskViewHolder.editButton.setVisibility(View.VISIBLE); //TODO add onCLick listener
             taskViewHolder.deleteButton.setVisibility(View.VISIBLE); //TODO add onClick listener
-//            View.OnClickListener buttonlistener = new View.OnClickListener() {
-//                @Override
-//                public void onClick(View v) {
-//                    Log.d(TAG, "onClick: starts");
-//                    Log.d(TAG, "onClick: button with id " + v.getId() + " clicked");
-//                    Log.d(TAG, "onClick: task name is " + task.getName());
-//                }
-//            };
-            class Listener implements View.OnClickListener {
+            View.OnClickListener buttonlistener = new View.OnClickListener() {
+                // onclickListener will call the appropriate methods in our mListener object when one of the buttons is clicked.
+//                the mListener could be null, so we should check that before attempting to call one of the methods
+//                the button calls back this cursor recycler view adapter class when the button is tapped
+//                and this class will then call back the activity or the fragment passing the task that needs to be edited or deleted
+//                so the activity or the fragment can take care of editing or deleting the task.
+//                the CursorRecyclerAdapter is created by our MainActivityFragment, and MainActivityFragment also owns the layout that's display our RecyclerView
+//                However, the Fragment does not know anything about the AddEditActivityFragment that we'll be using to edit the Task details.
+//                Fragments are managed by Activities, and a Fragment can always get a reference to the Activity that it's attached to.
+//                Getting Fragments to create other Fragments is not a good practice.
+//                So the editing and deleting will be initiated by MainActivity.
+//                If main activity is going to be called back when the button is tapped, it needs to implement the onTaskClickListener interface
+//
                 @Override
-                public void onClick(View v) {
+                public void onClick(View view) {
                     Log.d(TAG, "onClick: starts");
-                    Log.d(TAG, "onClick: button with id " + v.getId() + " clicked");
+                    switch (view.getId()){
+                        case R.id.tli_edit:
+                            if (mListener != null) {
+                                mListener.onEditClick(task);
+                            }
+                            break;
+
+                        case R.id.tli_delete:
+                            if (mListener != null) {
+                                mListener.onDeleteClick(task);
+                            }
+                            break;
+
+                        default:
+                            Log.d(TAG, "onClick: foudn unexpected id");
+                    }
+
+                    Log.d(TAG, "onClick: button with id " + view.getId() + " clicked");
                     Log.d(TAG, "onClick: task name is " + task.getName());
                 }
-            }
-            Listener buttonlistener = new Listener();
+            };
+
             taskViewHolder.editButton.setOnClickListener(buttonlistener);
             taskViewHolder.deleteButton.setOnClickListener(buttonlistener);
         }

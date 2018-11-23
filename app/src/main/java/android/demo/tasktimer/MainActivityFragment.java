@@ -61,7 +61,7 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
         // we haven't got any data for the adapter yet so we will initialize it with null
         // that will cause it to return a view containing the instructions
         // which is what we expect when the app starts up with no task records
-        mAdapter = new CursorRecylerViewAdapter(null);
+        mAdapter = new CursorRecylerViewAdapter(null, (CursorRecylerViewAdapter.OnTaskClickListener) getActivity());
         recyclerView.setAdapter(mAdapter);
 
         Log.d(TAG, "onCreateView: returning");
@@ -108,6 +108,8 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
 
     // when the cursor retrieved all the data, it lets the loader manager know
     // the loader manager then calls onLoadFinished method and passes the cursor
+    // we get the data back when the loader calls the onLoadFinished method so this is where we provide the data to the adapter
+
     @Override
     public void onLoadFinished(@NonNull Loader<Cursor> loader, Cursor data) {
         Log.d(TAG, "Entering onLoadFinished: ");

@@ -7,8 +7,8 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-
-public class MainActivity extends AppCompatActivity {
+//                If main activity is going to be called back when the edit or delete button is tapped, it needs to implement the onTaskClickListener interface in CursorRecylerViewAdapter class
+public class MainActivity extends AppCompatActivity implements CursorRecylerViewAdapter.OnTaskClickListener {
     private static final String TAG = "MainActivity";
 
     //whether or not this activity is in 2-pane mode
@@ -56,6 +56,16 @@ public class MainActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onEditClick(Task task) {
+        taskEditRequest(task);
+    }
+
+    @Override
+    public void onDeleteClick(Task task) {
+
     }
 
     private void taskEditRequest(Task task) {
