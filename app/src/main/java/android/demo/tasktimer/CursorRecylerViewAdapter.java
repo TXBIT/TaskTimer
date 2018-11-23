@@ -10,6 +10,8 @@ import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
+import java.util.List;
+
 class CursorRecylerViewAdapter extends RecyclerView.Adapter<CursorRecylerViewAdapter.TaskViewHolder> {
     // should use the shortcut to create TAG to ensure that the TAG string will be less than 23 characters
     private static final String TAG = "CursorRecyclerViewAdapt";
@@ -49,10 +51,35 @@ class CursorRecylerViewAdapter extends RecyclerView.Adapter<CursorRecylerViewAda
                 throw new IllegalStateException("Couldn't move cursor to position" + position);
 
             }
-            taskViewHolder.name.setText(mCursor.getString(mCursor.getColumnIndex(TasksContract.Columns.TASKS_NAME)));
-            taskViewHolder.description.setText(mCursor.getString(mCursor.getColumnIndex(TasksContract.Columns.TASKS_DESCRIPTION)));
+            final Task task = new Task(mCursor.getLong(mCursor.getColumnIndex(TasksContract.Columns._ID)),
+                    mCursor.getString(mCursor.getColumnIndex(TasksContract.Columns.TASKS_NAME)),
+                    mCursor.getString(mCursor.getColumnIndex(TasksContract.Columns.TASKS_DESCRIPTION)),
+                    mCursor.getInt(mCursor.getColumnIndex(TasksContract.Columns.TASKS_SORTORDER)));
+
+
+            taskViewHolder.name.setText(task.getName());
+            taskViewHolder.description.setText(task.getDescription());
             taskViewHolder.editButton.setVisibility(View.VISIBLE); //TODO add onCLick listener
             taskViewHolder.deleteButton.setVisibility(View.VISIBLE); //TODO add onClick listener
+//            View.OnClickListener buttonlistener = new View.OnClickListener() {
+//                @Override
+//                public void onClick(View v) {
+//                    Log.d(TAG, "onClick: starts");
+//                    Log.d(TAG, "onClick: button with id " + v.getId() + " clicked");
+//                    Log.d(TAG, "onClick: task name is " + task.getName());
+//                }
+//            };
+            class Listener implements View.OnClickListener {
+                @Override
+                public void onClick(View v) {
+                    Log.d(TAG, "onClick: starts");
+                    Log.d(TAG, "onClick: button with id " + v.getId() + " clicked");
+                    Log.d(TAG, "onClick: task name is " + task.getName());
+                }
+            }
+            Listener buttonlistener = new Listener();
+            taskViewHolder.editButton.setOnClickListener(buttonlistener);
+            taskViewHolder.deleteButton.setOnClickListener(buttonlistener);
         }
     }
 
