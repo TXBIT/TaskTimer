@@ -81,7 +81,10 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
         // specify a sort order
         // sorting according to the sort order column
         // and then alphabetically by name for the tasks with same sort order
-        String sortOrder = TasksContract.Columns.TASKS_SORTORDER + "," + TasksContract.Columns.TASKS_NAME;
+        // COLLATE NOCASE: ignore case
+        // <order by> Tasks.SortOrder, Tasks.Name COLLATE NOCASE
+        String sortOrder = TasksContract.Columns.TASKS_SORTORDER + "," + TasksContract.Columns.TASKS_NAME + " COLLATE NOCASE";
+
         // add additional cases if there are more than one loader
         switch (id) {
             case LOADER_ID:

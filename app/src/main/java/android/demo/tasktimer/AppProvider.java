@@ -133,8 +133,16 @@ public class AppProvider extends ContentProvider {
         // these parameters have been passed to the query method
 //        Cursor cursor = queryBuilder.query(db, projection, selection, selectionArgs, null, null, sortOrder);
 
-        return queryBuilder.query(db, projection, selection, selectionArgs, null, null, sortOrder);
+        Cursor cursor = queryBuilder.query(db, projection, selection, selectionArgs, null, null, sortOrder);
+        Log.d(TAG, "query: rows in returned cursor = " + cursor.getCount()); //TODO remove this line
+        // send a notification to the listener attached to this resolver
+        // notify about changes to the data for the uri
+        // uri represents the tasks table
+        cursor.setNotificationUri(getContext().getContentResolver(), uri);
+        return cursor;
+//        return queryBuilder.query(db, projection, selection, selectionArgs, null, null, sortOrder);
     }
+
 
     @Nullable
     @Override
@@ -220,7 +228,18 @@ public class AppProvider extends ContentProvider {
             default:
                 throw new IllegalArgumentException("unknown uri: " + uri);
         }
+        if (recordId >= 0) {
+            // sth was inserting
+            Log.d(TAG, "insert: setting notifyChange with " + uri);
+            // calling the content resolver's notifyChange method to notify all registered observers that a row was updated
+            // pass the uri that changed to the notifyChange method
+            // the second parameter is a content observer that triggered the change
 
+            getContext().getContentResolver().notifyChange(uri, null);
+
+        } else {
+            Log.d(TAG, "insert: nothing inserted");
+        }
         Log.d(TAG, "exiting insert, returning: " + returnUri);
 
         return returnUri;
@@ -273,9 +292,14 @@ public class AppProvider extends ContentProvider {
             default:
                 throw new IllegalArgumentException("unknown uri: " + uri);
         }
-
+        if (count > 0) {
+            // sth was deleted
+            Log.d(TAG, "delete: setting notifyChange with " + uri);
+            getContext().getContentResolver().notifyChange(uri, null);
+        } else {
+            Log.d(TAG, "delete: nothing deleted");
+        }
         Log.d(TAG, "exiting delete, returning " + count);
-
         return count;
     }
 
@@ -325,6 +349,13 @@ public class AppProvider extends ContentProvider {
 
             default:
                 throw new IllegalArgumentException("unknown uri: " + uri);
+        }
+        if (count > 0) {
+            // sth was deleted
+            Log.d(TAG, "update: setting notifyChange with " + uri);
+            getContext().getContentResolver().notifyChange(uri, null);
+        } else {
+            Log.d(TAG, "update: nothing updated");
         }
 
         Log.d(TAG, "exiting update, returning " + count);
