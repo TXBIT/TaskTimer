@@ -34,14 +34,12 @@ class CursorRecylerViewAdapter extends RecyclerView.Adapter<CursorRecylerViewAda
     @Override
     public void onBindViewHolder(TaskViewHolder taskViewHolder, int position) {
         Log.d(TAG, "onBindViewHolder: starts");
+        // if the cursor is null, display the instructions
+        // else display the data
         if ((mCursor == null) || (mCursor.getCount() == 0)) {
             Log.d(TAG, "onBindViewHolder: providing instructions");
-            taskViewHolder.name.setText("Instructions");
-            taskViewHolder.description.setText("Use the add button (+) in the toolbar above to create new tasks." +
-                    "\n\nTasks with lower sort order will be placed higher up the list." +
-                    "Tasks with the same sort order will be sorted alphabetically" +
-                    "\n\nTapping a task will start the timer for that task (and will stop the timer for any previous task that was being timed." +
-                    "\n\nEach task has Edit and Delete buttons if you want to change the details or remove the task.");
+            taskViewHolder.name.setText(R.string.instructions_heading);
+            taskViewHolder.description.setText(R.string.instructions);
             // View.GONE is similar to View.INVISIBLE but the widget does not take any space in the layout
             // that allows the description TextView widget to fill the entire width of the display
             taskViewHolder.editButton.setVisibility(View.GONE);
@@ -58,9 +56,43 @@ class CursorRecylerViewAdapter extends RecyclerView.Adapter<CursorRecylerViewAda
         }
     }
 
+    // the RecyclerView uses getItemCount to know how many items there are to display
+    // if there are no items, we will send back a View to display the instructions
     @Override
     public int getItemCount() {
-        return 0;
+        Log.d(TAG, "getItemCount: starts");
+        if ((mCursor == null) || (mCursor.getCount()) == 0) {
+            return 1; //fib, because we populate a single ViewHolder with instructions
+        } else {
+            return mCursor.getCount();
+        }
+    }
+
+    /**
+     * Swap in a new Cursor, returning the old Cursor.
+     * The returned old Cursor is <em>not</em> closed.
+     * <p>
+     * This is a boilerplate code. It should be called whenever the cursor that the adapters using is changed.
+     * e.g. It will be called in the MainActivityFragment when we provide a valid cursor for the first time and again when the loader resets
+     *
+     * @param newCursor The new cursor to be used
+     * @return Returns the previously set Cursor, or null if there wasn't one.
+     * If the given new Cursor is the same instance as the previously set Cursor, null is also returned.
+     */
+    Cursor swapCursor(Cursor newCursor) {
+        if (newCursor == mCursor) {
+            return null;
+        }
+        final Cursor oldCursor = mCursor;
+        mCursor = newCursor;
+        if (newCursor != null) {
+            //notify the observers about the new cursor
+            notifyDataSetChanged();
+        } else {
+            // notify the observers about the lack of a data set
+            notifyItemRangeRemoved(0, getItemCount());
+        }
+        return oldCursor;
     }
 
     static class TaskViewHolder extends RecyclerView.ViewHolder {

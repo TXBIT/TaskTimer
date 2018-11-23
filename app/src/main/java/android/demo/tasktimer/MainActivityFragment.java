@@ -8,6 +8,8 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -25,6 +27,8 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
     // a loader manager can manage several loaders, as a result, each loader needs a unique number to identify
     public static final int LOADER_ID = 0;
 
+    //adapter reference
+    private CursorRecylerViewAdapter mAdapter;
 
     public MainActivityFragment() {
         Log.d(TAG, "MainActivityFragment: constructor called");
@@ -50,7 +54,19 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         Log.d(TAG, "onCreateView: starts");
-        return inflater.inflate(R.layout.fragment_main, container, false);
+        View view = inflater.inflate(R.layout.fragment_main, container, false);
+        RecyclerView recyclerView = (RecyclerView) view.findViewById(R.id.task_list);
+        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+
+        // we haven't got any data for the adapter yet so we will initialize it with null
+        // that will cause it to return a view containing the instructions
+        // which is what we expect when the app starts up with no task records
+        mAdapter = new CursorRecylerViewAdapter(null);
+        recyclerView.setAdapter(mAdapter);
+
+        Log.d(TAG, "onCreateView: returning");
+
+        return view;
     }
 
     @NonNull
@@ -92,19 +108,10 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
     @Override
     public void onLoadFinished(@NonNull Loader<Cursor> loader, Cursor data) {
         Log.d(TAG, "Entering onLoadFinished: ");
-        // loop through the cursor and log the data
-        // the cursor is not closed because it belongs to the cursor loader
-        // if it is closed, the cursor loader won't get notification that the data has changed
-        int count = -1;
-        if (data != null) {
-            while (data.moveToNext()) {
-                for (int i = 0; i < data.getColumnCount(); i++) {
-                    Log.d(TAG, "onLoadFinished: " + data.getColumnName(i) + ": " + data.getString(i));
-                }
-                Log.d(TAG, "onLoadFinished: ===========================");
-            }
-            count = data.getCount();
-        }
+        mAdapter.swapCursor(data);
+        int count = mAdapter.getItemCount();
+
+
         Log.d(TAG, "onLoadFinished: count is " + count);
     }
 
@@ -112,5 +119,7 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
     @Override
     public void onLoaderReset(@NonNull Loader<Cursor> loader) {
         Log.d(TAG, "onLoaderReset: starts");
+        // the adapter no longer holds a reference to the cursor and the loader is free to close it
+        mAdapter.swapCursor(null);
     }
 }
