@@ -78,7 +78,7 @@ public class MainActivity extends AppCompatActivity implements CursorRecylerView
             //in single-pane mode, start the detail activity for the selected item Id.
 
             Intent detailIntent = new Intent(this, AddEditActivity.class);
-            //If taskEditReqi=uest is called with a not null task argument, an existing task is to be edited
+            //If taskEditRequest is called with a not null task argument, an existing task is to be edited
 //            if the task is null, add a new task
             if (task != null) { //editing a task
 //                adding the to be edited task to the intent by calling the putExtra method
