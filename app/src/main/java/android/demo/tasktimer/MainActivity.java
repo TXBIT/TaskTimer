@@ -23,7 +23,12 @@ public class MainActivity extends AppCompatActivity implements CursorRecylerView
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
+        // if the layout contains a view with the id task_details_container, set mTwoPane to true
+        if(findViewById(R.id.task_details_container)!= null){
+//             the details container will be present only in the large-screen layouts (res/values-land and res/values-sw600dp).
+//             if this view is present, then the activity should be in two-pane mode.
+            mTwoPane = true;
+        }
     }
 
     @Override
@@ -73,6 +78,7 @@ public class MainActivity extends AppCompatActivity implements CursorRecylerView
         if (mTwoPane) {
             Log.d(TAG, "taskEditRequest: in two-pane mode (tablet)");
 
+
         } else { // if the app is running in portrait mode, start the AddEditActivity using an Intent
             Log.d(TAG, "taskEditRequest: in single-pane mode (phone)");
             //in single-pane mode, start the detail activity for the selected item Id.
@@ -89,7 +95,6 @@ public class MainActivity extends AppCompatActivity implements CursorRecylerView
                 startActivity(detailIntent);
             }
         }
-
 
     }
 }
