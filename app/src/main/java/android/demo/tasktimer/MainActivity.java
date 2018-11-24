@@ -82,6 +82,8 @@ public class MainActivity extends AppCompatActivity implements CursorRecylerView
             AddEditActivityFragment fragment = new AddEditActivityFragment();
 
             Bundle arguments = new Bundle();
+            // add the task to a bundle
+            // and add the bundle to the fragments arguments
             arguments.putSerializable(Task.class.getSimpleName(), task);
             fragment.setArguments(arguments);
 
@@ -97,8 +99,8 @@ public class MainActivity extends AppCompatActivity implements CursorRecylerView
             FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
 
             // the first parameter is the id for the FrameLayout task_details_container that we are going to put the fragment into
-
-            fragmentTransaction.add(R.id.task_details_container, fragment);
+// add => replace because of overlapping
+            fragmentTransaction.replace(R.id.task_details_container, fragment);
             fragmentTransaction.commit();
         } else { // if the app is running in portrait mode, start the AddEditActivity using an Intent
             Log.d(TAG, "taskEditRequest: in single-pane mode (phone)");

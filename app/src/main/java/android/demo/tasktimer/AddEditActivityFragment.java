@@ -45,20 +45,32 @@ public class AddEditActivityFragment extends Fragment {
         mDescriptionTextView = (EditText) view.findViewById(R.id.addedit_description);
         mSortOrderTextView = (EditText) view.findViewById(R.id.addedit_sortorder);
         mSaveButton = (Button) view.findViewById(R.id.addedit_save);
+
         // the line to be changed
         // arguments bundle is returned by getExtras
         // that is calling on the intent (getIntent)
         // that started the activity (getActivity)
-        Bundle arguments = getActivity().getIntent().getExtras();
+
+//        Bundle arguments = getActivity().getIntent().getExtras();
+
+
+        // we are still retrieving the bundle
+        // but we are getting it from the arguments
+        // that were set before the fragment was added
+        // using the setArguments() method
+        Bundle arguments = getArguments();
         // the task to be retrieved
+
         final Task task;
+
         // check if the bundle is empty
         // when MainActivity wants to add a new task, it doesn't provide any extras to the intent, in this case arguments will be null
-        // even if there are arguments, there's no guarantee that they contain a task so we used the getSerializable method and pass the Task.class.getSimpleName as the key (line 62)
+        // even if there are arguments, there's no guarantee that they contain a task so we used the getSerializable method and pass the Task.class.getSimpleName as the key
         // if that doesn't return null, we have a task to edit, we can then initialize the contents of the edit text widgets with that task details
         // if the task was null, we didn't get a task to edit, we just set the mode to ADD
         // the task is made final because we are referring to it in the button onClickListener and an inner class can only access final variables of its enclosing class
-        // we have to initialize it to null (line 80) otherwise there will be a path through the code that could result in it no been initialized and lead to error
+        // we have to initialize it to null  otherwise there will be a path through the code that could result in it no been initialized and lead to error
+
         if (arguments != null) {
             Log.d(TAG, "onCreateView: retrieving task details.");
 
