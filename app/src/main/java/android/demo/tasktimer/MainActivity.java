@@ -2,6 +2,8 @@ package android.demo.tasktimer;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -77,8 +79,27 @@ public class MainActivity extends AppCompatActivity implements CursorRecylerView
         Log.d(TAG, "taskEditRequest: starts");
         if (mTwoPane) {
             Log.d(TAG, "taskEditRequest: in two-pane mode (tablet)");
+            AddEditActivityFragment fragment = new AddEditActivityFragment();
+
+            Bundle arguments = new Bundle();
+            arguments.putSerializable(Task.class.getSimpleName(), task);
+            fragment.setArguments(arguments);
 
 
+            // get a fragment manager then call beginTransaction method
+            // receive a fragment transaction object that is used to perform the wanted operations
+            // adding, removing, replacing fragments are done through a fragment transaction
+            // fragment transaction queues up all changes then performs them once commit is called
+            // by that way, everything seems smooth
+            // and users will not see gaps appearing when fragments removed and new ones added
+
+            FragmentManager fragmentManager = getSupportFragmentManager();
+            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+
+            // the first parameter is the id for the FrameLayout task_details_container that we are going to put the fragment into
+
+            fragmentTransaction.add(R.id.task_details_container, fragment);
+            fragmentTransaction.commit();
         } else { // if the app is running in portrait mode, start the AddEditActivity using an Intent
             Log.d(TAG, "taskEditRequest: in single-pane mode (phone)");
             //in single-pane mode, start the detail activity for the selected item Id.
@@ -95,6 +116,5 @@ public class MainActivity extends AppCompatActivity implements CursorRecylerView
                 startActivity(detailIntent);
             }
         }
-
     }
 }
