@@ -2,6 +2,7 @@ package android.demo.tasktimer;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
@@ -10,7 +11,8 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 //                If main activity is going to be called back when the edit or delete button is tapped, it needs to implement the onTaskClickListener interface in CursorRecylerViewAdapter class
-public class MainActivity extends AppCompatActivity implements CursorRecylerViewAdapter.OnTaskClickListener {
+public class MainActivity extends AppCompatActivity implements CursorRecylerViewAdapter.OnTaskClickListener, AddEditActivityFragment.OnSaveClicked {
+
     private static final String TAG = "MainActivity";
 
     //whether or not this activity is in 2-pane mode
@@ -30,6 +32,17 @@ public class MainActivity extends AppCompatActivity implements CursorRecylerView
 //             the details container will be present only in the large-screen layouts (res/values-land and res/values-sw600dp).
 //             if this view is present, then the activity should be in two-pane mode.
             mTwoPane = true;
+        }
+
+    }
+
+    @Override
+    public void onSaveClicked() {
+        Log.d(TAG, "onSaveClicked: starts");
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        Fragment fragment = fragmentManager.findFragmentById(R.id.task_details_container);
+        if(fragment != null){
+            getSupportFragmentManager().beginTransaction().remove(fragment).commit();
         }
     }
 
@@ -95,13 +108,19 @@ public class MainActivity extends AppCompatActivity implements CursorRecylerView
             // by that way, everything seems smooth
             // and users will not see gaps appearing when fragments removed and new ones added
 
-            FragmentManager fragmentManager = getSupportFragmentManager();
-            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+//            FragmentManager fragmentManager = getSupportFragmentManager();
+//            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+
 
             // the first parameter is the id for the FrameLayout task_details_container that we are going to put the fragment into
 // add => replace because of overlapping
-            fragmentTransaction.replace(R.id.task_details_container, fragment);
-            fragmentTransaction.commit();
+//            fragmentTransaction.replace(R.id.task_details_container, fragment);
+//            fragmentTransaction.commit();
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.task_details_container, fragment)
+                    .commit();
+
+
         } else { // if the app is running in portrait mode, start the AddEditActivity using an Intent
             Log.d(TAG, "taskEditRequest: in single-pane mode (phone)");
             //in single-pane mode, start the detail activity for the selected item Id.

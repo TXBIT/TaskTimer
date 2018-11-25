@@ -112,8 +112,10 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
 
     @Override
     public void onLoadFinished(@NonNull Loader<Cursor> loader, Cursor data) {
+        // loop through the cursor and log the data
         Log.d(TAG, "Entering onLoadFinished: ");
         mAdapter.swapCursor(data);
+
         int count = mAdapter.getItemCount();
 
 

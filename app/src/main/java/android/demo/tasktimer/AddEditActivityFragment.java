@@ -34,7 +34,7 @@ public class AddEditActivityFragment extends Fragment {
     private OnSaveClicked mSaveListener = null;
 
     interface OnSaveClicked {
-        void OnSaveClicked();
+        void onSaveClicked();
     }
 
     public AddEditActivityFragment() {
@@ -45,13 +45,14 @@ public class AddEditActivityFragment extends Fragment {
     public void onAttach(Context context) {
         Log.d(TAG, "onAttach: starts");
         super.onAttach(context);
-
+        // activities contain this fragment must implement its callbacks
         Activity activity = getActivity();
         if (!(activity instanceof OnSaveClicked)) {
             throw new ClassCastException(activity.getClass().getSimpleName()
-                        + "must implement AddEditActivityFragment.OnSavedClicked interface");
+                    + " must implement ActivityFragment.OnSaveClicked interface");
         }
         mSaveListener = (OnSaveClicked) activity;
+
     }
 
     @Override
@@ -59,7 +60,6 @@ public class AddEditActivityFragment extends Fragment {
         Log.d(TAG, "onDetach: starts");
         super.onDetach();
         mSaveListener = null;
-
     }
 
     @Override
@@ -183,6 +183,11 @@ public class AddEditActivityFragment extends Fragment {
                         break;
                 }
                 Log.d(TAG, "onClick: Done editing");
+                // check if mSaveListener is null before attempting to call the onSaveClicked method
+                // so the app won't crash if there's no activity associated with the fragment
+                if(mSaveListener != null){
+                    mSaveListener.onSaveClicked();
+                }
             }
         });
         Log.d(TAG, "onCreateView: Exiting...");
