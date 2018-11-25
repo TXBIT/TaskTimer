@@ -1,7 +1,9 @@
 package android.demo.tasktimer;
 
+import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.ContentValues;
+import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -29,9 +31,35 @@ public class AddEditActivityFragment extends Fragment {
     private EditText mDescriptionTextView;
     private EditText mSortOrderTextView;
     private Button mSaveButton;
+    private OnSaveClicked mSaveListener = null;
+
+    interface OnSaveClicked {
+        void OnSaveClicked();
+    }
 
     public AddEditActivityFragment() {
         Log.d(TAG, "AddEditActivityFragment: constructor called");
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        Log.d(TAG, "onAttach: starts");
+        super.onAttach(context);
+
+        Activity activity = getActivity();
+        if (!(activity instanceof OnSaveClicked)) {
+            throw new ClassCastException(activity.getClass().getSimpleName()
+                        + "must implement AddEditActivityFragment.OnSavedClicked interface");
+        }
+        mSaveListener = (OnSaveClicked) activity;
+    }
+
+    @Override
+    public void onDetach() {
+        Log.d(TAG, "onDetach: starts");
+        super.onDetach();
+        mSaveListener = null;
+
     }
 
     @Override
