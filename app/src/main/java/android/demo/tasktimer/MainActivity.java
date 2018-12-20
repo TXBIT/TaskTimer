@@ -10,8 +10,11 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+
 //                If main activity is going to be called back when the edit or delete button is tapped, it needs to implement the onTaskClickListener interface in CursorRecylerViewAdapter class
-public class MainActivity extends AppCompatActivity implements CursorRecylerViewAdapter.OnTaskClickListener, AddEditActivityFragment.OnSaveClicked {
+public class MainActivity extends AppCompatActivity implements CursorRecylerViewAdapter.OnTaskClickListener,
+                                                               AddEditActivityFragment.OnSaveClicked,
+                                                               AppDialog.DialogEvents {
 
     private static final String TAG = "MainActivity";
 
@@ -19,7 +22,9 @@ public class MainActivity extends AppCompatActivity implements CursorRecylerView
 //    i.e running in landscape in tablet
     private boolean mTwoPane = false;
 
-    private static final String ADD_EDIT_FRAGMENT = "AddEditFragment";
+
+    public static final int DIALOG_ID_DELETE = 1;
+public static final int DIALOG_ID_CANCEL_EDIT = 2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,7 +33,7 @@ public class MainActivity extends AppCompatActivity implements CursorRecylerView
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         // if the layout contains a view with the id task_details_container, set mTwoPane to true
-        if(findViewById(R.id.task_details_container)!= null){
+        if (findViewById(R.id.task_details_container) != null) {
 //             the details container will be present only in the large-screen layouts (res/values-land and res/values-sw600dp).
 //             if this view is present, then the activity should be in two-pane mode.
             mTwoPane = true;
@@ -41,8 +46,11 @@ public class MainActivity extends AppCompatActivity implements CursorRecylerView
         Log.d(TAG, "onSaveClicked: starts");
         FragmentManager fragmentManager = getSupportFragmentManager();
         Fragment fragment = fragmentManager.findFragmentById(R.id.task_details_container);
-        if(fragment != null){
+        if (fragment != null) {
             getSupportFragmentManager().beginTransaction().remove(fragment).commit();
+            //            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+//            fragmentTransaction.remove(fragment);
+//            fragmentTransaction.commit();
         }
     }
 
@@ -83,9 +91,24 @@ public class MainActivity extends AppCompatActivity implements CursorRecylerView
         taskEditRequest(task);
     }
 
+    // when the delete button is tapped
+//    the onClick listener attached to the button in the CursorRecyclerViewAdapter class calles MainActivity's onDeleteClick
+//    we can request confirmation before the content resolver's delete mothod is called
     @Override
     public void onDeleteClick(Task task) {
-        getContentResolver().delete(TasksContract.buildTaskUri(task.getid()), null, null);
+        Log.d(TAG, "onDeleteClick: starts");
+        AppDialog dialog = new AppDialog();
+        Bundle args = new Bundle();
+//        passing the key value pairs into the bundle
+        args.putInt(AppDialog.DIALOG_ID, DIALOG_ID_DELETE);
+        args.putString(AppDialog.DIALOG_MESSAGE, getString(R.string.deldiag_message, task.getId(), task.getName()));
+        args.putInt(AppDialog.DIALOG_POSITIVE_RID, R.string.deldiag_positive_caption);
+
+        args.putLong("TaskId", task.getId());
+
+        dialog.setArguments(args);
+        dialog.show(getSupportFragmentManager(), null);
+
     }
 
     private void taskEditRequest(Task task) {
@@ -119,6 +142,7 @@ public class MainActivity extends AppCompatActivity implements CursorRecylerView
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.task_details_container, fragment)
                     .commit();
+//            getSupportFragmentManager().beginTransaction().replace(R.id.task_details_container, fragment).commit();
 
 
         } else { // if the app is running in portrait mode, start the AddEditActivity using an Intent
@@ -137,5 +161,63 @@ public class MainActivity extends AppCompatActivity implements CursorRecylerView
                 startActivity(detailIntent);
             }
         }
+    }
+
+    @Override
+    public void onPositiveDialogResult(int dialogId, Bundle args) {
+        Log.d(TAG, "onPositiveDialogResult: called");
+        switch (dialogId){
+            case DIALOG_ID_DELETE:
+                Long taskId = args.getLong("TaskId");
+                // the BuildConfig.DEBUG that Google suggested we use is a system-wide constant that the compiler can use
+                // the assert error code will be removed when the released version of the app is compiled
+                if(BuildConfig.DEBUG && taskId == 0) throw  new AssertionError("Task id is zero");
+                getContentResolver().delete(TasksContract.buildTaskUri(taskId), null, null);
+                break;
+            case DIALOG_ID_CANCEL_EDIT:
+                //no action required
+                break;
+        }
+    }
+
+    @Override
+    public void onNegativeDialogResult(int dialogId, Bundle args) {
+        Log.d(TAG, "onNegativeDialogResult: called");
+        switch (dialogId){
+            case DIALOG_ID_DELETE:
+                // no action required
+                break;
+            case DIALOG_ID_CANCEL_EDIT:
+                finish();
+                break;
+        }
+
+    }
+    
+    @Override
+    public void onDialogCancelled(int dialogId) {
+        Log.d(TAG, "onDialogCancelled: called");
+    }
+
+    @Override
+    public void onBackPressed() {
+        Log.d(TAG, "onBackPressed: called");
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        AddEditActivityFragment fragment = (AddEditActivityFragment) fragmentManager.findFragmentById(R.id.task_details_container);
+        if((fragment == null)|| fragment.canClose()){
+            super.onBackPressed();
+        } else {
+//             show dialogue to get confirmation to quite editing
+            AppDialog dialog = new AppDialog();
+            Bundle args = new Bundle();
+            args.putInt(AppDialog.DIALOG_ID, DIALOG_ID_CANCEL_EDIT);
+            args.putString(AppDialog.DIALOG_MESSAGE, getString(R.string.cancelEditDiag_message));
+            args.putInt(AppDialog.DIALOG_POSITIVE_RID, R.string.cancelEditDiag_positive_caption);
+            args.putInt(AppDialog.DIALOG_NEGATIVE_RID, R.string.cancelEditDiag_negative_caption);
+
+            dialog.setArguments(args);
+            dialog.show(getSupportFragmentManager(), null);
+        }
+
     }
 }

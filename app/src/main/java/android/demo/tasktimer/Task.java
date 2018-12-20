@@ -18,14 +18,14 @@ class Task implements Serializable {
     private final int mSortOrder;
 
 
-    public Task(long id, String Name, String Description, int SortOrder) {
+    public Task(long id, String name, String description, int sortOrder) {
         this.m_Id = id;
-        this.mName = Name;
-        this.mDescription = Description;
-        this.mSortOrder = SortOrder;
+        this.mName = name;
+        this.mDescription = description;
+        this.mSortOrder = sortOrder;
     }
 
-    public long getid() {
+    public long getId() {
         return m_Id;
     }
 
