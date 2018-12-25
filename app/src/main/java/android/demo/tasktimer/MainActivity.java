@@ -1,20 +1,27 @@
 package android.demo.tasktimer;
 
+import android.annotation.SuppressLint;
+import android.content.ActivityNotFoundException;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.support.v7.app.AlertDialog;
+import android.view.View;
+import android.widget.TextView;
+import android.widget.Toast;
 
-//                If main activity is going to be called back when the edit or delete button is tapped, it needs to implement the onTaskClickListener interface in CursorRecylerViewAdapter class
-public class MainActivity extends AppCompatActivity implements CursorRecylerViewAdapter.OnTaskClickListener,
-                                                               AddEditActivityFragment.OnSaveClicked,
-                                                               AppDialog.DialogEvents {
+//                If main activity is going to be called back when the edit or delete button is tapped, it needs to implement the onTaskClickListener interface in CursorRecyclerViewAdapter class
+public class MainActivity extends AppCompatActivity implements CursorRecyclerViewAdapter.OnTaskClickListener,
+        AddEditActivityFragment.OnSaveClicked,
+        AppDialog.DialogEvents {
 
     private static final String TAG = "MainActivity";
 
@@ -24,7 +31,8 @@ public class MainActivity extends AppCompatActivity implements CursorRecylerView
 
 
     public static final int DIALOG_ID_DELETE = 1;
-public static final int DIALOG_ID_CANCEL_EDIT = 2;
+    public static final int DIALOG_ID_CANCEL_EDIT = 2;
+    private AlertDialog mDialog = null;   // Module scope because we  to dimiss it in  e.g when orientation changes to avoid memory leaks
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,6 +86,7 @@ public static final int DIALOG_ID_CANCEL_EDIT = 2;
             case R.id.menumain_settings:
                 break;
             case R.id.menumain_showAbout:
+                showAboutDialog();
                 break;
             case R.id.menumain_generate:
                 break;
@@ -86,6 +95,88 @@ public static final int DIALOG_ID_CANCEL_EDIT = 2;
         return super.onOptionsItemSelected(item);
     }
 
+    @SuppressLint("SetTextI18n")
+    public void showAboutDialog() {
+        @SuppressLint("InflateParams") View messageView = getLayoutInflater().inflate(R.layout.about, null, false);
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle(R.string.app_name);
+        builder.setIcon(R.mipmap.ic_launcher);
+        builder.setView(messageView);
+        builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                Log.d(TAG, "onClick: Entering messageView.onClick, showing = " + mDialog.isShowing());
+                if (mDialog != null && mDialog.isShowing()) {
+                    mDialog.dismiss();
+                }
+            }
+        });
+
+        mDialog = builder.create();
+        mDialog.setCanceledOnTouchOutside(true);
+//        builder.setTitle(R.string.app_name);
+//        builder.setIcon(R.mipmap.ic_launcher);
+//messageView.setOnClickListener(new View.OnClickListener() {
+//    @Override
+//    public void onClick(View v) {
+//        Log.d(TAG, "onClick: entering messageView.onClick, showing = " + mDialog.isShowing());
+//        if(mDialog != null && mDialog.isShowing()){
+//            mDialog.dismiss();
+//        }
+//    }
+//});
+
+
+        TextView tv = (TextView) messageView.findViewById(R.id.about_version);
+        tv.setText("v" + BuildConfig.VERSION_NAME);
+
+        TextView about_url = (TextView) messageView.findViewById(R.id.about_url);
+        if (about_url != null) {
+            about_url.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent = new Intent(Intent.ACTION_VIEW);
+                    String s = ((TextView) v).getText().toString();
+                    intent.setData(Uri.parse(s));
+                    try {
+                        startActivity(intent);
+                    } catch (ActivityNotFoundException e) {
+                        Toast.makeText(MainActivity.this, "No browser", Toast.LENGTH_LONG).show();
+                    }
+
+                }
+            });
+        }
+
+        mDialog.show();
+    }
+
+    //@SuppressLint("SetTextI18n")
+//public void showAboutDialog(){
+//        @SuppressLint("InflateParams") View messageView = getLayoutInflater().inflate(R.layout.about, null, false);
+//        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+//    builder.setTitle(R.string.app_name);
+//    builder.setIcon(R.mipmap.ic_launcher);
+//        builder.setView(messageView);
+//        mDialog = builder.create();
+//        mDialog.setCanceledOnTouchOutside(true);
+////        builder.setTitle(R.string.app_name);
+////        builder.setIcon(R.mipmap.ic_launcher);
+//messageView.setOnClickListener(new View.OnClickListener() {
+//    @Override
+//    public void onClick(View v) {
+//        Log.d(TAG, "onClick: entering messageView.onClick, showing = " + mDialog.isShowing());
+//        if(mDialog != null && mDialog.isShowing()){
+//            mDialog.dismiss();
+//        }
+//    }
+//});
+//
+//
+//    TextView tv = (TextView) messageView.findViewById(R.id.about_version);
+//    tv.setText("v" + BuildConfig.VERSION_NAME);
+//    mDialog.show();
+//}
     @Override
     public void onEditClick(Task task) {
         taskEditRequest(task);
@@ -166,12 +257,12 @@ public static final int DIALOG_ID_CANCEL_EDIT = 2;
     @Override
     public void onPositiveDialogResult(int dialogId, Bundle args) {
         Log.d(TAG, "onPositiveDialogResult: called");
-        switch (dialogId){
+        switch (dialogId) {
             case DIALOG_ID_DELETE:
                 Long taskId = args.getLong("TaskId");
                 // the BuildConfig.DEBUG that Google suggested we use is a system-wide constant that the compiler can use
                 // the assert error code will be removed when the released version of the app is compiled
-                if(BuildConfig.DEBUG && taskId == 0) throw  new AssertionError("Task id is zero");
+                if (BuildConfig.DEBUG && taskId == 0) throw new AssertionError("Task id is zero");
                 getContentResolver().delete(TasksContract.buildTaskUri(taskId), null, null);
                 break;
             case DIALOG_ID_CANCEL_EDIT:
@@ -183,7 +274,7 @@ public static final int DIALOG_ID_CANCEL_EDIT = 2;
     @Override
     public void onNegativeDialogResult(int dialogId, Bundle args) {
         Log.d(TAG, "onNegativeDialogResult: called");
-        switch (dialogId){
+        switch (dialogId) {
             case DIALOG_ID_DELETE:
                 // no action required
                 break;
@@ -193,18 +284,19 @@ public static final int DIALOG_ID_CANCEL_EDIT = 2;
         }
 
     }
-    
+
     @Override
     public void onDialogCancelled(int dialogId) {
         Log.d(TAG, "onDialogCancelled: called");
     }
+
 
     @Override
     public void onBackPressed() {
         Log.d(TAG, "onBackPressed: called");
         FragmentManager fragmentManager = getSupportFragmentManager();
         AddEditActivityFragment fragment = (AddEditActivityFragment) fragmentManager.findFragmentById(R.id.task_details_container);
-        if((fragment == null)|| fragment.canClose()){
+        if ((fragment == null) || fragment.canClose()) {
             super.onBackPressed();
         } else {
 //             show dialogue to get confirmation to quite editing
@@ -218,6 +310,13 @@ public static final int DIALOG_ID_CANCEL_EDIT = 2;
             dialog.setArguments(args);
             dialog.show(getSupportFragmentManager(), null);
         }
+    }
 
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if (mDialog != null && mDialog.isShowing()) {
+            mDialog.dismiss();
+        }
     }
 }

@@ -10,9 +10,7 @@ import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
-import java.util.List;
-
-class CursorRecylerViewAdapter extends RecyclerView.Adapter<CursorRecylerViewAdapter.TaskViewHolder> {
+class CursorRecyclerViewAdapter extends RecyclerView.Adapter<CursorRecyclerViewAdapter.TaskViewHolder> {
     // should use the shortcut to create TAG to ensure that the TAG string will be less than 23 characters
     private static final String TAG = "CursorRecyclerViewAdapt";
     // the field that holds the cursor
@@ -21,11 +19,12 @@ class CursorRecylerViewAdapter extends RecyclerView.Adapter<CursorRecylerViewAda
 
     interface OnTaskClickListener {
         void onEditClick(Task task);
+
         void onDeleteClick(Task task);
     }
 
-    public CursorRecylerViewAdapter(Cursor cursor, OnTaskClickListener listener) {
-        Log.d(TAG, "CursorRecylerViewAdapter: Constructor called");
+    public CursorRecyclerViewAdapter(Cursor cursor, OnTaskClickListener listener) {
+        Log.d(TAG, "CursorRecyclerViewAdapter: Constructor called");
         mCursor = cursor;
         mListener = listener;
     }
@@ -84,7 +83,7 @@ class CursorRecylerViewAdapter extends RecyclerView.Adapter<CursorRecylerViewAda
                 @Override
                 public void onClick(View view) {
                     Log.d(TAG, "onClick: starts");
-                    switch (view.getId()){
+                    switch (view.getId()) {
                         case R.id.tli_edit:
                             if (mListener != null) {
                                 mListener.onEditClick(task);
