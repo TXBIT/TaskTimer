@@ -5,8 +5,10 @@ import android.content.ActivityNotFoundException;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.demo.tasktimer.debug.TestData;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
@@ -36,6 +38,8 @@ public class MainActivity extends AppCompatActivity implements CursorRecyclerVie
     private static final int DIALOG_ID_CANCEL_EDIT_UP = 3;
 
     private AlertDialog mDialog = null;   // Module scope because we  to dimiss it in  e.g when orientation changes to avoid memory leaks
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -108,6 +112,11 @@ public class MainActivity extends AppCompatActivity implements CursorRecyclerVie
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
+
+        if (BuildConfig.DEBUG){
+            MenuItem generate = menu.findItem(R.id.menumain_generate);
+            generate.setVisible(true);
+        }
         return true;
     }
 
@@ -116,6 +125,8 @@ public class MainActivity extends AppCompatActivity implements CursorRecyclerVie
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
+
+
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
@@ -131,6 +142,7 @@ public class MainActivity extends AppCompatActivity implements CursorRecyclerVie
                 showAboutDialog();
                 break;
             case R.id.menumain_generate:
+                TestData.generateTestData(getContentResolver());
                 break;
             case android.R.id.home:
                 Log.d(TAG, "onOptionsItemSelected: home  button pressed");
@@ -192,7 +204,7 @@ public class MainActivity extends AppCompatActivity implements CursorRecyclerVie
     }
 
     @Override
-    public void onEditClick(Task task) {
+    public void onEditClick(@NonNull Task task) {
         taskEditRequest(task);
     }
 
@@ -200,8 +212,9 @@ public class MainActivity extends AppCompatActivity implements CursorRecyclerVie
 //    the onClick listener attached to the button in the CursorRecyclerViewAdapter class calles MainActivity's onDeleteClick
 //    we can request confirmation before the content resolver's delete mothod is called
     @Override
-    public void onDeleteClick(Task task) {
+    public void onDeleteClick(@NonNull Task task) {
         Log.d(TAG, "onDeleteClick: starts");
+
         AppDialog dialog = new AppDialog();
         Bundle args = new Bundle();
 //        passing the key value pairs into the bundle
@@ -359,4 +372,10 @@ public class MainActivity extends AppCompatActivity implements CursorRecyclerVie
         dialog.setArguments(args);
         dialog.show(getSupportFragmentManager(), null);
     }
+
+    @Override
+    public void onTaskLongClick(@NonNull Task task) {
+        //Required to satisfy the interface
+    }
 }
+

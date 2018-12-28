@@ -21,12 +21,12 @@ public class TasksContract {
     static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd." + CONTENT_AUTHORITY + "." + TABLE_NAME;
 
     // append the given Id to the end of the path
-    static Uri buildTaskUri(long taskId) {
+    public static Uri buildTaskUri(long taskId) {
         return ContentUris.withAppendedId(CONTENT_URI, taskId);
     }
 
     // extract the ID from a uri
-    static long getTaskId(Uri uri) {
+    public static long getTaskId(Uri uri) {
         // convert the last path segment to a long
         return ContentUris.parseId(uri);
     }

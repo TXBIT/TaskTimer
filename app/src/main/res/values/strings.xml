@@ -29,4 +29,10 @@
     <string name="about_weblink_21" />
     <string name="about_email">AndroidExplorers@rmit.edu.vn</string>
     <string name="about_credits" />
+    <string name="current_timing_text">Timing %1$s</string>
+    <string name="td_text_name">Task name</string>
+    <string name="td_text_date">Date</string>
+    <string name="td_text_duration">Duration</string>
+    <string name="td_text_description">Description</string>
+    <string name="td_text_description">Description</string>
 </resources>
