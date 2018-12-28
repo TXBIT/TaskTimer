@@ -1,5 +1,6 @@
 package android.demo.tasktimer;
 
+import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
@@ -7,7 +8,11 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatDialogFragment;
+import android.util.AttributeSet;
 import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 
 public class AppDialog extends AppCompatDialogFragment {
     public static final String TAG = "AppDialog";
@@ -165,5 +170,91 @@ public class AppDialog extends AppCompatDialogFragment {
     // onDismiss is called when the dialog's dismissed, even if it was dismissed as a result of being cancelled
     // onCancel is only called when the dialog is cancelled by tapping the cancel button or tapping outside the dialog or using the back button
 
+
+    // Fragment Lifecycle callback events - added for practice
+    @Override
+    public void onInflate(Context context, AttributeSet attrs, Bundle savedInstanceState) {
+        Log.d(TAG, "onInflate: called");
+        super.onInflate(context, attrs, savedInstanceState);
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        Log.d(TAG, "onCreate: called");
+        super.onCreate(savedInstanceState);
+    }
+
+    @Override
+    public void onHiddenChanged(boolean hidden) {
+        Log.d(TAG, "onHiddenChanged: called");
+        super.onHiddenChanged(hidden);
+    }
+
+    @Nullable
+    @Override
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
+        Log.d(TAG, "onCreateView: called");
+        return super.onCreateView(inflater, container, savedInstanceState);
+    }
+
+    @Override
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        Log.d(TAG, "onViewCreated: called");
+        super.onViewCreated(view, savedInstanceState);
+    }
+
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        Log.d(TAG, "onActivityCreated: called");
+        super.onActivityCreated(savedInstanceState);
+    }
+
+    @Override
+    public void onViewStateRestored(Bundle savedInstanceState) {
+        Log.d(TAG, "onViewStateRestored: called");
+        super.onViewStateRestored(savedInstanceState);
+    }
+
+    @Override
+    public void onStart() {
+        Log.d(TAG, "onStart: called");
+        super.onStart();
+    }
+
+    @Override
+    public void onResume() {
+        Log.d(TAG, "onResume: called");
+        super.onResume();
+    }
+
+    @Override
+    public void onPause() {
+        Log.d(TAG, "onPause: called");
+        super.onPause();
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        Log.d(TAG, "onSaveInstanceState: called");
+        super.onSaveInstanceState(outState);
+    }
+
+    @Override
+    public void onStop() {
+        Log.d(TAG, "onStop: called");
+        super.onStop();
+    }
+
+    @Override
+    public void onDestroyView() {
+        Log.d(TAG, "onDestroyView: called");
+        super.onDestroyView();
+    }
+
+    @Override
+    public void onDestroy() {
+        Log.d(TAG, "onDestroy: called");
+        super.onDestroy();
+    }
 
 }

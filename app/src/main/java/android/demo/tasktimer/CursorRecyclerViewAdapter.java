@@ -29,6 +29,10 @@ class CursorRecyclerViewAdapter extends RecyclerView.Adapter<CursorRecyclerViewA
         mListener = listener;
     }
 
+//    public void setListener(OnTaskClickListener mListener) {
+//        this.mListener = mListener;
+//    }
+
     // onCreateViewHolder is called when the RecyclerView needs a new View to display
     @Override
     public TaskViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
@@ -65,8 +69,8 @@ class CursorRecyclerViewAdapter extends RecyclerView.Adapter<CursorRecyclerViewA
 
             taskViewHolder.name.setText(task.getName());
             taskViewHolder.description.setText(task.getDescription());
-            taskViewHolder.editButton.setVisibility(View.VISIBLE); //TODO add onCLick listener
-            taskViewHolder.deleteButton.setVisibility(View.VISIBLE); //TODO add onClick listener
+            taskViewHolder.editButton.setVisibility(View.VISIBLE);
+            taskViewHolder.deleteButton.setVisibility(View.VISIBLE);
             View.OnClickListener buttonlistener = new View.OnClickListener() {
                 // onclickListener will call the appropriate methods in our mListener object when one of the buttons is clicked.
 //                the mListener could be null, so we should check that before attempting to call one of the methods

@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.content.ActivityNotFoundException;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -32,6 +33,8 @@ public class MainActivity extends AppCompatActivity implements CursorRecyclerVie
 
     public static final int DIALOG_ID_DELETE = 1;
     public static final int DIALOG_ID_CANCEL_EDIT = 2;
+    private static final int DIALOG_ID_CANCEL_EDIT_UP = 3;
+
     private AlertDialog mDialog = null;   // Module scope because we  to dimiss it in  e.g when orientation changes to avoid memory leaks
 
     @Override
@@ -41,12 +44,41 @@ public class MainActivity extends AppCompatActivity implements CursorRecyclerVie
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         // if the layout contains a view with the id task_details_container, set mTwoPane to true
-        if (findViewById(R.id.task_details_container) != null) {
-//             the details container will be present only in the large-screen layouts (res/values-land and res/values-sw600dp).
-//             if this view is present, then the activity should be in two-pane mode.
-            mTwoPane = true;
-        }
+//        if (findViewById(R.id.task_details_container) != null) {
+////             the details container will be present only in the large-screen layouts (res/values-land and res/values-sw600dp).
+////             if this view is present, then the activity should be in two-pane mode.
+//            mTwoPane = true;
+//        }
+        mTwoPane = (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE);
+        Log.d(TAG, "onCreate: twoPane is " + mTwoPane);
+        FragmentManager fragmentManager = getSupportFragmentManager();
+//         If the AddEditActivity fragment exists, we're editing
+        Boolean editing = fragmentManager.findFragmentById(R.id.task_details_container) != null;
+        Log.d(TAG, "onCreate: editing is " + editing);
 
+//         we need references to the containers, so we can show or hide them as necessary
+//        no need to cast them, as we're only calling a method that's available for all view
+        View addEditLayout = findViewById(R.id.task_details_container);
+        View mainFragment = findViewById(R.id.fragment);
+        if (mTwoPane) {
+            Log.d(TAG, "onCreate: twoPane mode");
+            mainFragment.setVisibility(View.VISIBLE);
+            addEditLayout.setVisibility(View.VISIBLE);
+
+        } else if (editing) {
+            Log.d(TAG, "onCreate: single pane, editing");
+            // hide the left hand fragment, to make room for editing
+            mainFragment.setVisibility(View.GONE);
+
+        } else {
+            Log.d(TAG, "onCreate: single pane, not editing");
+//             show left hand fragment
+            mainFragment.setVisibility(View.VISIBLE);
+//            Hide the editing frame
+            addEditLayout.setVisibility(View.GONE);
+
+
+        }
     }
 
     @Override
@@ -60,6 +92,16 @@ public class MainActivity extends AppCompatActivity implements CursorRecyclerVie
 //            fragmentTransaction.remove(fragment);
 //            fragmentTransaction.commit();
         }
+        View addEditLayout = findViewById(R.id.task_details_container);
+        View mainFragment = findViewById(R.id.fragment);
+        if (!mTwoPane) {
+//             we've just removed the editing fragment, so hide the frame
+            addEditLayout.setVisibility(View.GONE);
+//            and make sure the MainActivityFragment is visible
+            mainFragment.setVisibility(View.VISIBLE);
+
+        }
+
     }
 
     @Override
@@ -90,6 +132,16 @@ public class MainActivity extends AppCompatActivity implements CursorRecyclerVie
                 break;
             case R.id.menumain_generate:
                 break;
+            case android.R.id.home:
+                Log.d(TAG, "onOptionsItemSelected: home  button pressed");
+                AddEditActivityFragment fragment = (AddEditActivityFragment)
+                        getSupportFragmentManager().findFragmentById(R.id.task_details_container);
+                if (fragment.canClose()) {
+                    return super.onOptionsItemSelected(item);
+                } else {
+                    showConfirmationDialog(DIALOG_ID_CANCEL_EDIT_UP);
+                    return true; //indicate we are handling this
+                }
         }
 
         return super.onOptionsItemSelected(item);
@@ -114,18 +166,6 @@ public class MainActivity extends AppCompatActivity implements CursorRecyclerVie
 
         mDialog = builder.create();
         mDialog.setCanceledOnTouchOutside(true);
-//        builder.setTitle(R.string.app_name);
-//        builder.setIcon(R.mipmap.ic_launcher);
-//messageView.setOnClickListener(new View.OnClickListener() {
-//    @Override
-//    public void onClick(View v) {
-//        Log.d(TAG, "onClick: entering messageView.onClick, showing = " + mDialog.isShowing());
-//        if(mDialog != null && mDialog.isShowing()){
-//            mDialog.dismiss();
-//        }
-//    }
-//});
-
 
         TextView tv = (TextView) messageView.findViewById(R.id.about_version);
         tv.setText("v" + BuildConfig.VERSION_NAME);
@@ -151,32 +191,6 @@ public class MainActivity extends AppCompatActivity implements CursorRecyclerVie
         mDialog.show();
     }
 
-    //@SuppressLint("SetTextI18n")
-//public void showAboutDialog(){
-//        @SuppressLint("InflateParams") View messageView = getLayoutInflater().inflate(R.layout.about, null, false);
-//        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-//    builder.setTitle(R.string.app_name);
-//    builder.setIcon(R.mipmap.ic_launcher);
-//        builder.setView(messageView);
-//        mDialog = builder.create();
-//        mDialog.setCanceledOnTouchOutside(true);
-////        builder.setTitle(R.string.app_name);
-////        builder.setIcon(R.mipmap.ic_launcher);
-//messageView.setOnClickListener(new View.OnClickListener() {
-//    @Override
-//    public void onClick(View v) {
-//        Log.d(TAG, "onClick: entering messageView.onClick, showing = " + mDialog.isShowing());
-//        if(mDialog != null && mDialog.isShowing()){
-//            mDialog.dismiss();
-//        }
-//    }
-//});
-//
-//
-//    TextView tv = (TextView) messageView.findViewById(R.id.about_version);
-//    tv.setText("v" + BuildConfig.VERSION_NAME);
-//    mDialog.show();
-//}
     @Override
     public void onEditClick(Task task) {
         taskEditRequest(task);
@@ -204,54 +218,41 @@ public class MainActivity extends AppCompatActivity implements CursorRecyclerVie
 
     private void taskEditRequest(Task task) {
         Log.d(TAG, "taskEditRequest: starts");
-        if (mTwoPane) {
-            Log.d(TAG, "taskEditRequest: in two-pane mode (tablet)");
-            AddEditActivityFragment fragment = new AddEditActivityFragment();
 
-            Bundle arguments = new Bundle();
-            // add the task to a bundle
-            // and add the bundle to the fragments arguments
-            arguments.putSerializable(Task.class.getSimpleName(), task);
-            fragment.setArguments(arguments);
+        Log.d(TAG, "taskEditRequest: in two-pane mode (tablet)");
+        AddEditActivityFragment fragment = new AddEditActivityFragment();
 
-
-            // get a fragment manager then call beginTransaction method
-            // receive a fragment transaction object that is used to perform the wanted operations
-            // adding, removing, replacing fragments are done through a fragment transaction
-            // fragment transaction queues up all changes then performs them once commit is called
-            // by that way, everything seems smooth
-            // and users will not see gaps appearing when fragments removed and new ones added
-
-//            FragmentManager fragmentManager = getSupportFragmentManager();
-//            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        Bundle arguments = new Bundle();
+        // add the task to a bundle
+        // and add the bundle to the fragments arguments
+        arguments.putSerializable(Task.class.getSimpleName(), task);
+        fragment.setArguments(arguments);
+        Log.d(TAG, "taskEditRequest: twoPaneMode");
 
 
-            // the first parameter is the id for the FrameLayout task_details_container that we are going to put the fragment into
-// add => replace because of overlapping
-//            fragmentTransaction.replace(R.id.task_details_container, fragment);
-//            fragmentTransaction.commit();
-            getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.task_details_container, fragment)
-                    .commit();
-//            getSupportFragmentManager().beginTransaction().replace(R.id.task_details_container, fragment).commit();
+        // get a fragment manager then call beginTransaction method
+        // receive a fragment transaction object that is used to perform the wanted operations
+        // adding, removing, replacing fragments are done through a fragment transaction
+        // fragment transaction queues up all changes then performs them once commit is called
+        // by that way, everything seems smooth
+        // and users will not see gaps appearing when fragments removed and new ones added
 
+        // the first parameter is the id for the FrameLayout task_details_container that we are going to put the fragment into
+        // add => replace because of overlapping
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.task_details_container, fragment)
+                .commit();
 
-        } else { // if the app is running in portrait mode, start the AddEditActivity using an Intent
+        if (!mTwoPane) { // if the app is running in portrait mode, start the AddEditActivity using an Intent
             Log.d(TAG, "taskEditRequest: in single-pane mode (phone)");
-            //in single-pane mode, start the detail activity for the selected item Id.
-
-            Intent detailIntent = new Intent(this, AddEditActivity.class);
-            //If taskEditRequest is called with a not null task argument, an existing task is to be edited
-//            if the task is null, add a new task
-            if (task != null) { //editing a task
-//                adding the to be edited task to the intent by calling the putExtra method
-//                that's why we had to make the Task class serializable in order to pass it around in an intent
-                detailIntent.putExtra(Task.class.getSimpleName(), task);
-                startActivity(detailIntent);
-            } else { //adding a new task
-                startActivity(detailIntent);
-            }
+//             Hide the left hand fragment and show the right hand frame
+            View mainFragment = findViewById(R.id.fragment);
+            View addEditLayout = findViewById(R.id.task_details_container);
+            mainFragment.setVisibility(View.GONE);
+            addEditLayout.setVisibility(View.VISIBLE);
         }
+        Log.d(TAG, "taskEditRequest: Exiting taskEditRequest");
+
     }
 
     @Override
@@ -266,6 +267,7 @@ public class MainActivity extends AppCompatActivity implements CursorRecyclerVie
                 getContentResolver().delete(TasksContract.buildTaskUri(taskId), null, null);
                 break;
             case DIALOG_ID_CANCEL_EDIT:
+            case DIALOG_ID_CANCEL_EDIT_UP:
                 //no action required
                 break;
         }
@@ -279,7 +281,35 @@ public class MainActivity extends AppCompatActivity implements CursorRecyclerVie
                 // no action required
                 break;
             case DIALOG_ID_CANCEL_EDIT:
-                finish();
+            case DIALOG_ID_CANCEL_EDIT_UP:
+                // If we're editing, remove the fragment. Otherwise, close the app
+                FragmentManager fragmentManager = getSupportFragmentManager();
+                Fragment fragment = fragmentManager.findFragmentById(R.id.task_details_container);
+                if (fragment != null) {
+                    // we were editing
+                    getSupportFragmentManager().beginTransaction()
+                            .remove(fragment)
+                            .commit();
+                    if (mTwoPane) {
+                        // in Landscape, so quit only if the back button was used
+                        if (dialogId == DIALOG_ID_CANCEL_EDIT) {
+                            finish();
+                        }
+                    } else {
+                        // hide the edit container in single pane mode
+                        // and make sure the left-hand container is visible
+                        View addEditLayout = findViewById((R.id.task_details_container));
+                        View mainFragment = findViewById(R.id.fragment);
+                        // we just removed the editing fragment, so hide the frame
+                        addEditLayout.setVisibility(View.GONE);
+
+                        // and make sure the MainActivityFragment is visible
+                        mainFragment.setVisibility(View.VISIBLE);
+                    }
+                } else {
+                    // not editing, so quit regardless of orientation
+                    finish();
+                }
                 break;
         }
 
@@ -300,15 +330,7 @@ public class MainActivity extends AppCompatActivity implements CursorRecyclerVie
             super.onBackPressed();
         } else {
 //             show dialogue to get confirmation to quite editing
-            AppDialog dialog = new AppDialog();
-            Bundle args = new Bundle();
-            args.putInt(AppDialog.DIALOG_ID, DIALOG_ID_CANCEL_EDIT);
-            args.putString(AppDialog.DIALOG_MESSAGE, getString(R.string.cancelEditDiag_message));
-            args.putInt(AppDialog.DIALOG_POSITIVE_RID, R.string.cancelEditDiag_positive_caption);
-            args.putInt(AppDialog.DIALOG_NEGATIVE_RID, R.string.cancelEditDiag_negative_caption);
-
-            dialog.setArguments(args);
-            dialog.show(getSupportFragmentManager(), null);
+            showConfirmationDialog(DIALOG_ID_CANCEL_EDIT);
         }
     }
 
@@ -318,5 +340,23 @@ public class MainActivity extends AppCompatActivity implements CursorRecyclerVie
         if (mDialog != null && mDialog.isShowing()) {
             mDialog.dismiss();
         }
+    }
+
+    @Override
+    public void onAttachFragment(Fragment fragment) {
+        Log.d(TAG, "onAttachFragment: called, fragment is " + fragment.toString());
+        super.onAttachFragment(fragment);
+    }
+
+    private void showConfirmationDialog(int dialogId) {
+        AppDialog dialog = new AppDialog();
+        Bundle args = new Bundle();
+        args.putInt(AppDialog.DIALOG_ID, dialogId);
+        args.putString(AppDialog.DIALOG_MESSAGE, getString(R.string.cancelEditDiag_message));
+        args.putInt(AppDialog.DIALOG_POSITIVE_RID, R.string.cancelEditDiag_positive_caption);
+        args.putInt(AppDialog.DIALOG_NEGATIVE_RID, R.string.cancelEditDiag_negative_caption);
+
+        dialog.setArguments(args);
+        dialog.show(getSupportFragmentManager(), null);
     }
 }

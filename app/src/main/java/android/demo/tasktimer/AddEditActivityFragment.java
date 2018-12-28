@@ -1,11 +1,16 @@
 package android.demo.tasktimer;
 
+
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -20,7 +25,7 @@ public class AddEditActivityFragment extends Fragment {
     private static final String TAG = "AddEditActivityFragment";
 
     // keeps track of whether the fragments being used to add or edit
-    public enum FragmentEditMode {
+    private enum FragmentEditMode {
         EDIT, ADD
     }
 
@@ -30,7 +35,6 @@ public class AddEditActivityFragment extends Fragment {
     private EditText mNameTextView;
     private EditText mDescriptionTextView;
     private EditText mSortOrderTextView;
-    private Button mSaveButton;
     private OnSaveClicked mSaveListener = null;
 
     interface OnSaveClicked {
@@ -40,7 +44,8 @@ public class AddEditActivityFragment extends Fragment {
     public AddEditActivityFragment() {
         Log.d(TAG, "AddEditActivityFragment: constructor called");
     }
-    public boolean canClose(){
+
+    public boolean canClose() {
         return false;
     }
 
@@ -59,12 +64,28 @@ public class AddEditActivityFragment extends Fragment {
     }
 
     @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setDisplayHomeAsUpEnabled(true);
+        }
+
+    }
+
+    @Override
     public void onDetach() {
         Log.d(TAG, "onDetach: starts");
         super.onDetach();
         mSaveListener = null;
+        ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setDisplayHomeAsUpEnabled(false);
+
+        }
     }
 
+    @SuppressLint("SetTextI18n")
     @Override
     public View onCreateView(LayoutInflater inflater, final ViewGroup container,
                              Bundle savedInstanceState) {
@@ -72,10 +93,10 @@ public class AddEditActivityFragment extends Fragment {
         // variable to store the inflated view
         View view = inflater.inflate(R.layout.fragment_add_edit, container, false);
         // extract the references to the various widgets on the screen and save those in the fields
-        mNameTextView = (EditText) view.findViewById(R.id.addedit_name);
-        mDescriptionTextView = (EditText) view.findViewById(R.id.addedit_description);
-        mSortOrderTextView = (EditText) view.findViewById(R.id.addedit_sortorder);
-        mSaveButton = (Button) view.findViewById(R.id.addedit_save);
+        mNameTextView = view.findViewById(R.id.addedit_name);
+        mDescriptionTextView = view.findViewById(R.id.addedit_description);
+        mSortOrderTextView = view.findViewById(R.id.addedit_sortorder);
+        Button mSaveButton = view.findViewById(R.id.addedit_save);
 
         // the line to be changed
         // arguments bundle is returned by getExtras
@@ -153,6 +174,10 @@ public class AddEditActivityFragment extends Fragment {
 
                 switch (mMode) {
                     case EDIT:
+                        if (task == null) {
+                            // remove lint warnings, will never execute
+                            break;
+                        }
                         // check each edit text value against the original task object that was passed in the bundle
                         // if the value has changed, the new value is added to the values ContentValues
                         // once all the fields have been checked, if there is anything in value
@@ -188,7 +213,7 @@ public class AddEditActivityFragment extends Fragment {
                 Log.d(TAG, "onClick: Done editing");
                 // check if mSaveListener is null before attempting to call the onSaveClicked method
                 // so the app won't crash if there's no activity associated with the fragment
-                if(mSaveListener != null){
+                if (mSaveListener != null) {
                     mSaveListener.onSaveClicked();
                 }
             }
