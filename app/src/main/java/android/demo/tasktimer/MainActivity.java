@@ -40,7 +40,6 @@ public class MainActivity extends AppCompatActivity implements CursorRecyclerVie
     private AlertDialog mDialog = null;   // Module scope because we  to dimiss it in  e.g when orientation changes to avoid memory leaks
 
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -113,7 +112,7 @@ public class MainActivity extends AppCompatActivity implements CursorRecyclerVie
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
 
-        if (BuildConfig.DEBUG){
+        if (BuildConfig.DEBUG) {
             MenuItem generate = menu.findItem(R.id.menumain_generate);
             generate.setVisible(true);
         }
@@ -135,6 +134,7 @@ public class MainActivity extends AppCompatActivity implements CursorRecyclerVie
                 taskEditRequest(null);
                 break;
             case R.id.menumain_showDurations:
+                startActivity(new Intent(this, DurationsReport.class));
                 break;
             case R.id.menumain_settings:
                 break;
